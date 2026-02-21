@@ -1,27 +1,47 @@
 import css from './NoteList.module.css';
 
+import { deleteNote } from '@/lib/api';
+import { type Note } from '@/types/note';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { deleteNote } from '../../lib/api';
-import { Note } from '../../types/note';
 
 interface NoteListProps {
-  notes: Note[];
+  noteList: Note[];
+  setIsModal?: (type: boolean) => void;
+  setTypeModal?: (type: 'form' | 'error' | 'create' | 'delete') => void;
+  setMessage?: (mes: Note) => void;
 }
 
-export default function NoteList({ notes }: NoteListProps) {
+export default function NoteList({
+  noteList,
+  setIsModal,
+  setMessage,
+  setTypeModal,
+}: NoteListProps) {
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteNote(id),
-    onSuccess: () => {
+    mutationFn: async (id: string) => {
+      const res = await deleteNote(id);
+      return res;
+    },
+    onSuccess: data => {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
+      if (setIsModal) {
+        setIsModal(true);
+      }
+      if (setTypeModal) {
+        setTypeModal('delete');
+      }
+      if (setMessage) {
+        setMessage(data);
+      }
     },
   });
 
   return (
     <ul className={css.list}>
-      {notes.map(note => (
+      {noteList.map(note => (
         <li key={note.id} className={css.listItem}>
           <h2 className={css.title}>{note.title}</h2>
           <p className={css.content}>{note.content}</p>

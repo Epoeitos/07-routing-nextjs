@@ -2,24 +2,38 @@ import css from './NoteForm.module.css';
 
 import { ErrorMessage, Field, Form, Formik, type FormikHelpers } from 'formik';
 import { useId } from 'react';
+import { type NewNote, type Note } from '@/types/note';
 import * as Yup from 'yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createNote } from '../../lib/api';
-import { NewNote } from '../../types/note';
+import { createNote } from '@/lib/api';
 
 interface NoteFormProps {
-  onClose: () => void;
+  onCancel: () => void;
+  setIsModal: (type: boolean) => void;
+  setTypeModal: (type: 'form' | 'error' | 'create' | 'delete') => void;
+  setMessage: (mes: Note) => void;
 }
 
-export default function NoteForm({ onClose }: NoteFormProps) {
+export default function NoteForm({
+  onCancel,
+  setIsModal,
+  setMessage,
+  setTypeModal,
+}: NoteFormProps) {
   const id = useId();
   const queryClient = useQueryClient();
 
   const createMutation = useMutation({
-    mutationFn: (data: NewNote) => createNote(data),
-    onSuccess: () => {
+    mutationFn: async (data: NewNote) => {
+      const res = await createNote(data);
+      return res;
+    },
+    onSuccess: data => {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
-      onClose();
+      onCancel();
+      setTypeModal('create');
+      setMessage(data);
+      setIsModal(true);
     },
   });
 
@@ -91,7 +105,7 @@ export default function NoteForm({ onClose }: NoteFormProps) {
         </div>
 
         <div className={css.actions}>
-          <button onClick={onClose} type="button" className={css.cancelButton}>
+          <button onClick={onCancel} type="button" className={css.cancelButton}>
             Cancel
           </button>
           <button type="submit" className={css.submitButton}>

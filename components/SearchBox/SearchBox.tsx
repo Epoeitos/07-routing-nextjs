@@ -3,10 +3,10 @@ import css from "./SearchBox.module.css";
 import { useEffect, useState } from "react";
 
 interface SearchBoxProps {
-  onSearchChange: (word: string) => void;
+  changeWord: (word: string) => void;
 }
 
-export default function SearchBox({ onSearchChange }: SearchBoxProps) {
+export default function SearchBox({ changeWord }: SearchBoxProps) {
   const [text, setText] = useState("");
 
   function handleChange(ev: React.ChangeEvent<HTMLInputElement>) {
@@ -14,8 +14,8 @@ export default function SearchBox({ onSearchChange }: SearchBoxProps) {
   }
 
   useEffect(() => {
-    onSearchChange(text);
-  }, [text, onSearchChange]);
+    changeWord(text);
+  }, [text, changeWord]);
 
   return (
     <input

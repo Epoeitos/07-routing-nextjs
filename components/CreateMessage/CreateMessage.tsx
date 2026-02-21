@@ -1,5 +1,7 @@
-import { Note } from "../../types/note";
-import css from './CreateMessage.module.css'
+import css from './CreateMessage.module.css';
+
+import { type Note } from '@/types/note';
+
 interface CreateMessageProps {
   note: Note;
   mess: string;
